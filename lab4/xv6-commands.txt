@@ -1,0 +1,20 @@
+# Commands to enter interactively at the xv6 prompt after installing sleep and args.
+sleep 20
+sleep
+echo hello > f ; cat < f
+ls | grep READ
+(echo a; echo b) | wc
+echo one ; echo two
+echo bg &
+ls *
+echo $HOME
+echo "a b"
+args *.c "x y"
+args $HOME
+args 'single quoted'
+# Use a fresh test directory:
+mkdir d
+cd d
+ls ..
+../ls ..
+cd ..

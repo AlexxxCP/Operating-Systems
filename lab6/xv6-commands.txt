@@ -1,0 +1,18 @@
+# Enter interactively in xv6 after installing mystat and find.
+ls
+mystat README . console
+# Use a disposable file to demonstrate hard links.
+echo hello > notes
+ln notes r2
+mystat notes r2
+rm notes
+mystat r2
+cat r2 | wc
+mkdir a
+mkdir a/b
+echo x > a/b/r2
+echo y > a/r2
+find . r2
+find a b
+find
+# Actual captured outputs, including unexpected exec failures, remain in report.pdf/report.md.
