@@ -1,0 +1,177 @@
+
+xv6 kernel is booting
+
+init: starting sh
+$ sleeptest
+usage: sleep <ticks>
+usage: sleep <ticks>
+sleep: ticks must be an integer from 0 to 2147483647
+sleep: ticks must be an integer from 0 to 2147483647
+sleep: ticks must be an integer from 0 to 2147483647
+sleep: ticks must be a non-negative integer
+sleep: ticks must be an integer from 0 to 2147483647
+sleeptest: ALL TESTS PASSED
+$ run
+parent: my pid is 14
+child: my pid is 15
+hello from the child
+parent: child 15 ended with status 0
+$ run ls
+parent: my pid is 16
+child: my pid is 17
+.              1 1 1024
+..             1 1 1024
+README         2 2 2441
+cat            2 3 35456
+echo           2 4 34384
+forktest       2 5 17360
+grep           2 6 42816
+init           2 7 34848
+kill           2 8 34312
+ln             2 9 34120
+ls             2 10 41600
+mkdir          2 11 34360
+rm             2 12 34344
+sh             2 13 56208
+stressfs       2 14 35240
+usertests      2 15 200136
+grind          2 16 50584
+wc             2 17 36416
+zombie         2 18 33728
+logstress      2 19 36264
+forphan        2 20 35128
+dorphan        2 21 34576
+sync           2 22 33792
+trace          2 23 34920
+sleep          2 24 34840
+sleeptest      2 25 40400
+run            2 26 34904
+pingpong       2 27 35776
+tracecheck     2 28 35064
+console        3 29 0
+parent: child 17 ended with status 0
+$ run nosuchprog
+parent: my pid is 18
+child: my pid is 19
+exec failed
+parent: child 19 ended with status 1
+$ pingpong
+21: received ping
+20: received pong
+$ pingpong
+23: received ping
+22: received pong
+$ pingpong
+25: received ping
+24: received pong
+$ trace 0 echo hi
+hi
+$ trace 32 grep hello README
+27: syscall read -> 1023
+27: syscall read -> 965
+27: syscall read -> 453
+27: syscall read -> 0
+$ trace 2147483647 grep hello README
+28: syscall trace -> 0
+28: syscall exec -> 3
+28: syscall open -> 3
+28: syscall read -> 1023
+28: syscall read -> 965
+28: syscall read -> 453
+28: syscall read -> 0
+28: syscall close -> 0
+$ trace 65536 echo hi
+hi29: syscall write -> 2
+
+29: syscall write -> 1
+$ trace 2129920 grep hello README
+30: syscall open -> 3
+30: syscall close -> 0
+$ trace abc echo rejected
+trace: mask must be an integer from 0 to 2147483647
+$ trace -1 echo rejected
+trace: mask must be an integer from 0 to 2147483647
+$ trace 2147483648 echo rejected
+trace: mask must be an integer from 0 to 2147483647
+$ trace
+usage: trace mask command [args...]
+$ trace 32 nosuchprog
+trace: exec nosuchprog failed
+$ tracecheck
+tracecheck: parent 36
+parent marker
+36: syscall write -> 14
+child marker
+37: syscall write -> 13
+child-disabled
+tracecheck: child 37
+tracecheck: ALL TESTS PASSED
+$ trace 2 usertests forkforkfork
+usertests starting
+test forkforkfork: 38: syscall fork -> 39
+39: syscall fork -> 40
+40: syscall fork -> 41
+40: syscall fork -> 42
+40: syscall fork -> 43
+40: syscall fork -> 44
+40: syscall fork -> 45
+40: syscall fork -> 46
+40: syscall fork -> 47
+40: syscall fork -> 48
+40: syscall fork -> 49
+40: syscall fork -> 50
+40: syscall fork -> 51
+40: syscall fork -> 52
+40: syscall fork -> 53
+40: syscall fork -> 54
+40: syscall fork -> 55
+40: syscall fork -> 56
+40: syscall fork -> 57
+40: syscall fork -> 58
+40: syscall fork -> 59
+40: syscall fork -> 60
+40: syscall fork -> 61
+40: syscall fork -> 62
+40: syscall fork -> 63
+40: syscall fork -> 64
+40: syscall fork -> 65
+40: syscall fork -> 66
+40: syscall fork -> 67
+40: syscall fork -> 68
+40: syscall fork -> 69
+40: syscall fork -> 70
+40: syscall fork -> 71
+40: syscall fork -> 72
+40: syscall fork -> 73
+40: syscall fork -> 74
+40: syscall fork -> 75
+40: syscall fork -> 76
+40: syscall fork -> 77
+40: syscall fork -> 78
+40: syscall fork -> 79
+40: syscall fork -> 80
+40: syscall fork -> 81
+40: syscall fork -> 82
+40: syscall fork -> 83
+40: syscall fork -> 84
+40: syscall fork -> 85
+40: syscall fork -> 86
+40: syscall fork -> 87
+40: syscall fork -> 88
+40: syscall fork -> 89
+40: syscall fork -> 90
+40: syscall fork -> 91
+40: syscall fork -> 92
+40: syscall fork -> 93
+40: syscall fork -> 94
+40: syscall fork -> 95
+40: syscall fork -> 96
+40: syscall fork -> 97
+40: syscall fork -> 98
+40: syscall fork -> 99
+40: syscall fork -> -1
+OK
+ALL TESTS PASSED
+$ echo untraced
+untraced
+$ 
