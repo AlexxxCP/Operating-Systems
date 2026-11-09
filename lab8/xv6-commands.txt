@@ -1,0 +1,12 @@
+# Enter interactively at the xv6 root prompt after registering both programs.
+run
+run ls
+run nosuchprog
+pingpong
+pingpong
+pingpong
+# run: parent/child PID, "hello from the child", status 0.
+# run ls: xv6 directory listing, status 0.
+# run nosuchprog: "exec failed", status 1.
+# pingpong: child's "received ping" before parent's "received pong".
+# PIDs vary between runs. Optional primes is not included in the supplied report.

@@ -1,0 +1,13 @@
+# Enter interactively at the xv6 root prompt after applying trace.patch.
+trace 0 echo hi
+trace 32 grep hello README
+trace 2147483647 grep hello README
+trace 2 usertests forkforkfork
+trace 65536 echo hi
+trace 2129920 grep hello README
+trace
+trace 32 nosuchprog
+# Additional isolation check: this ordinary command must produce no trace lines.
+echo untraced
+# Additional inheritance/reused-process-slot check: rerun ordinary echo after stress.
+# PIDs and read chunk sizes vary; read results must sum to the actual README size.

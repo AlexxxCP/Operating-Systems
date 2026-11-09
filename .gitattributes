@@ -5,5 +5,8 @@
 *.inc text eol=lf
 *.txt text eol=lf
 *.log text eol=lf
+*.py text eol=lf
+*.patch text eol=lf -whitespace
+Makefile text eol=lf
 *.pdf binary
 *.docx binary

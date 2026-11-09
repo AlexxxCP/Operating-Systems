@@ -18,3 +18,10 @@ __pycache__/
 fs.img
 kernel/kernel
 user/_*
+.os-labs-work/
+/lab7/run
+/lab7/zombie
+/lab7/redirect
+/lab7/pipeline
+/lab7/pipeline3
+/lab9/syscalls
