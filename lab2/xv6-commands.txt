@@ -1,0 +1,18 @@
+# Ubuntu commands, before entering xv6:
+# grep -n 'pause' user/user.h
+# make qemu
+# At the xv6 root prompt:
+ls
+cat README
+echo hello xv6
+ls | grep c
+wc README
+sleep 10
+sleep 0
+sleep
+sleep abc
+sleep -1
+sleep 2147483648
+sleep 1 2
+# When the test helper is installed, it checks statuses and elapsed ticks:
+sleeptest

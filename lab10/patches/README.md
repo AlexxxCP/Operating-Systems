@@ -16,4 +16,6 @@ This is a reconstructed patch, not a recovered diff from the original Ubuntu VM.
 
 The PDF shows the handler, inherited mask and conditional printing. The complete names table, patch context, initialization/reset and unsigned bounded mask selection were supplied during reconstruction. Existing syscall behavior is preserved.
 
+The reviewed user wrapper validates the decimal mask and checks overflow before invoking `trace`. The original PDF preserves the earlier `atoi` listing; the patch and standalone source use the reviewed version.
+
 Run `git apply --check` first. The patch already includes `user/trace.c` and its Makefile registration; copying the standalone file first would cause an add-file conflict.

@@ -1,0 +1,56 @@
+name: Lab checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux Labs 7 and 9
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install Linux tracing tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential strace
+      - name: Test Lab 7
+        run: make -C lab7 test
+      - name: Test Lab 9
+        run: make -C lab9 test
+      - name: Test sleep input handling
+        run: python3 lab2/tests/test_sleep_host.py
+
+  xv6:
+    name: RISC-V build and QEMU Labs 2, 8 and 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install RISC-V toolchain and QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu qemu-system-misc
+      - name: Fetch documented xv6 revision
+        run: |
+          git init "$RUNNER_TEMP/xv6-base"
+          git -C "$RUNNER_TEMP/xv6-base" remote add origin https://github.com/mit-pdos/xv6-riscv.git
+          git -C "$RUNNER_TEMP/xv6-base" fetch --depth=1 origin f780d7850765d74cbdcd1fff4b822d8829f7c9bd
+          git -C "$RUNNER_TEMP/xv6-base" checkout --detach FETCH_HEAD
+      - name: Test trace dispatcher with host mocks
+        run: |
+          cp -a "$RUNNER_TEMP/xv6-base" "$RUNNER_TEMP/xv6-trace"
+          git -C "$RUNNER_TEMP/xv6-trace" apply "$GITHUB_WORKSPACE/lab10/patches/trace.patch"
+          python3 lab10/tests/test_trace_host.py "$RUNNER_TEMP/xv6-trace"
+      - name: Build and run xv6 tests
+        run: python3 scripts/test_xv6.py --xv6 "$RUNNER_TEMP/xv6-base" --output "$RUNNER_TEMP/xv6-test-logs"
+      - name: Save build and QEMU logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: xv6-test-logs
+          path: ${{ runner.temp }}/xv6-test-logs
+          if-no-files-found: ignore

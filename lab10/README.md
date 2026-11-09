@@ -12,6 +12,7 @@ Adds per-process, inherited system-call tracing to xv6. `trace mask command [arg
 - [Makefile.inc](Makefile.inc): reference for manual integration; unnecessary when applying the complete patch.
 - [xv6-commands.txt](xv6-commands.txt): runtime tests for masks, inheritance, error handling and isolation.
 - [tests/test_trace_host.py](tests/test_trace_host.py): host checks using the actual patched dispatcher and handler with a mock kernel environment.
+- [tests/tracecheck.c](tests/tracecheck.c): actual xv6 check for inheritance, disabling tracing and exec.
 - [notes.md](notes.md): syscall numbers, masks, observations and limits.
 
 ## Apply and build in Ubuntu
@@ -53,5 +54,11 @@ This compiles and executes the actual dispatcher and `sys_trace` body with mock 
 ## Reconstruction
 
 The PDF remains unchanged; DOCX and Markdown are extracted versions. The patch reconstructs the excerpts against a fixed official source revision. Added initialization/reset prevents trace masks leaking through reused process slots. Mask selection uses an unsigned shift with a width guard. These additions are documented separately from the original recorded results.
+
+The reviewed wrapper additionally rejects empty, negative, non-decimal and overflowing masks before calling the kernel or executing the command. Accepted masks range from 0 to 2147483647. The patch and standalone `user/trace.c` contain the same reviewed implementation.
+
+## Automated QEMU run
+
+[GitHub Actions](https://github.com/AlexxxCP/Operating-Systems/actions/workflows/labs.yml) uses the [shared runner](../scripts/test_xv6.py) to apply the patch, build RISC-V code and boot the real kernel. Tests check read totals against the actual README size, zero/all/write/open-close masks, invalid inputs, inherited child writes, disabling tracing, failed exec and `usertests forkforkfork`. A following ordinary shell command checks that tracing did not spread to the shell. Build and console logs are saved as workflow artifacts.
 
 See [repository validation](../IMPLEMENTATION.md) for checks actually performed.

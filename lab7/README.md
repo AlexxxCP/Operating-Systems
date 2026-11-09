@@ -40,3 +40,7 @@ To inspect the zombie manually, run `./zombie > /dev/null &` followed by `ps -o 
 The original PDF is preserved byte for byte. DOCX and Markdown were extracted from its text, so layout can differ. Complete source files were reconstructed from the printed excerpts. Includes, entry points, error handling, descriptor cleanup and child-status checks were added. The default operations match the report; `run [command]` makes the report's modified-command experiments repeatable. Pipeline descriptor duplication uses `dup2`. The intentionally broken pipeline from the PDF is described in the notes; the distributed implementation closes all unused ends.
 
 See [repository validation](../IMPLEMENTATION.md) for checks performed on the host and the limits of those checks.
+
+## Automated Linux run
+
+[GitHub Actions](https://github.com/AlexxxCP/Operating-Systems/actions/workflows/labs.yml) executes `make -C lab7 test` on Ubuntu. This checks actual process creation, failed exec, stdout redirection, both pipelines and zombie reaping. Counts are compared with shell commands on that same machine.

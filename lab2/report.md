@@ -1,138 +1,68 @@
 # Laboratory Work No. 2: Meet the OS You Will Build
 
-> Reconstructed from [Lab2_Luchiciov_Alexei_Reitman_Patricia.pdf](Lab2_Luchiciov_Alexei_Reitman_Patricia.pdf). The original PDF is the reference for formatting and recorded results. Text extraction can affect spacing, tables and code listings.
+**Operating Systems — Technical University of Moldova**
 
-## Original PDF — page 1
+Student: Luchiciov Alexei, FAF-241. Verified by: Reiţman Patricia.
 
-Ministerul Educat iei s i Cercetării al Republicii Moldova
+[Original PDF](Lab2_Luchiciov_Alexei_Reitman_Patricia.pdf) · [Implementation](user/sleep.c) · [Observe answers](notes.md)
 
-,,
+This readable edition is based on the original PDF. Recorded command results below belong to the original VM session. The reviewed implementation and additional tests are described separately; they do not change the historical PDF.
 
-### Universitatea Tehnică a Moldovei
+## 1. Introduction and environment
 
-Facultatea Calculatoare, Informatică s i Microelectronică
+The work introduces xv6, a small Unix-like teaching operating system. Its source was compiled in Ubuntu and booted in the QEMU RISC-V emulator. The experiments used xv6 commands, inspected system-call implementations and added the `sleep` user program.
 
-,
+The VM used the source directory `~/xv6-riscv` and reported QEMU 10.2.1. The repository's repeatable checks use [official xv6 revision f780d785](https://github.com/mit-pdos/xv6-riscv/tree/f780d7850765d74cbdcd1fff4b822d8829f7c9bd), with `pause(int)` declared in `user/user.h`.
 
-Program: Software Engineering
+## 2. Build and boot
 
-### Operating Systems
+Commands executed in Ubuntu:
 
-### Laboratory Work No. 2
-
-### Meet the OS You Will Build
-
-Track B: Build Your Own Small OS (xv6)
-
-### Elaborated by:
-
-st. gr. FAF-241
-
-Luchiciov Alexei
-
-### Verified by:
-
-Reiţman Patricia
-
-Chis inău - 2026
-
-,
-
-## Original PDF — page 2
-
-### Contents
-
-1 Introduction 2
-
-2 Build and Boot xv6 2
-
-2.1 Interesting Command Output . . . . . . . . . . . . . . . . . . . . . . . . . . . 2 3 Using xv6 as Unix 3 3.1 Observations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3 3.2 Interesting Command Output . . . . . . . . . . . . . . . . . . . . . . . . . . . 3 4 Reading the Source Code 4 4.1 Observations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4 4.2 Interesting Command Output . . . . . . . . . . . . . . . . . . . . . . . . . . . 4 5 First xv6 Program: sleep 5 5.1 Implementation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5 5.2 Build and Test . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 5.3 Interesting Command Output . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 6 Conclusion 7
-
-## Original PDF — page 3
-
-### 1.Introduction
-
-The purpose of this laboratory work was to become familiar with xv6, a small Unix-like teaching operating system. During the laboratory work, xv6 was compiled from source code and started in the QEMU RISC-V emulator. I also used several commands inside xv6, inspected its source code, found system calls, and added my first user program. The work was performed inside the Ubuntu virtual machine. The xv6 source tree was located in ~/xv6-riscv. The project contained the main folders kernel/ and user/, together with the Makefile, README, and filesystem image.
-
-### 2.Build and Boot xv6
-
-Before starting xv6, I checked the project directory and the installed QEMU emulator:
-
-~~~text
+~~~bash
 cd ~/xv6-riscv
 ls
 qemu-system-riscv64 --version
-~~~
-
-The directory contained:
-
-~~~text
-LICENSE README kernel test-xv6.py
-Makefile fs.img mkfs user
-~~~
-
-The installed emulator reported:
-
-~~~text
-QEMU emulator version 10.2.1
-~~~
-
-Then xv6 was compiled and started using:
-
-~~~text
 make qemu
 ~~~
 
-After the build, the operating system booted successfully:
+The project contained `kernel/`, `user/`, `mkfs/`, `Makefile` and `README`. The recorded boot output was:
 
 ~~~text
 xv6 kernel is booting
-
 hart 1 starting
 hart 2 starting
 init: starting sh
 $
 ~~~
 
-The $ prompt showed that the xv6 shell was ready to accept commands.
+The initial process starts the shell; its prompt indicates that user commands can run. A hart is a RISC-V hardware thread. The number of hart messages depends on QEMU's configured CPU count.
 
-#### 2.1.Interesting Command Output
+## 3. Using xv6 as Unix
 
-The boot output was interesting because it showed that the kernel started more than one RISC-V hart and then launched the initial shell process.
-
-## Original PDF — page 4
-
-### 3.Using xv6 as Unix
-
-Inside the xv6 shell, I used several standard Unix-like programs:
+Commands entered at the xv6 prompt:
 
 ~~~text
-$ ls
-$ cat README
-$ echo hello xv6
-$ ls | grep c
-$ wc README
+ls
+cat README
+echo hello xv6
+ls | grep c
+wc README
 ~~~
 
-The ls command showed the programs included in the xv6 filesystem. Some of them were:
+The recorded directory listing included ls, cat, echo, grep, wc, mkdir and sh. Three examples of shipped programs are therefore ls, cat and echo.
 
-~~~text
-cat echo forktest grep init
-kill ln ls mkdir rm
-sh stressfs usertests wc zombie
-~~~
-
-The echo command produced:
+The echo and word-count results were:
 
 ~~~text
 $ echo hello xv6
 hello xv6
+$ wc README
+48 336 2441 README
 ~~~
 
-A pipe was also tested:
+The recorded pipe output included:
 
 ~~~text
-$ ls | grep c
 cat 2 3 36728
 echo 2 4 35592
 wc 2 17 37728
@@ -140,39 +70,25 @@ sync 2 22 34944
 console 3 23 0
 ~~~
 
-The word count for README was:
+The shell starts separate programs and connects them with a kernel pipe: the first process's output becomes the second process's input. fork, exec, pipe, descriptor duplication and waiting provide the necessary process and communication operations.
 
-~~~text
-$ wc README
-48 336 2441 README
+Both Bash and the xv6 shell support program execution, pipes and redirection. xv6 is deliberately smaller: Bash's globbing, variable expansion, quoting, PATH lookup, history and completion are not all implemented in its shell. Lab 4 explores these differences.
+
+The README counts, executable sizes and inode numbers above are recorded observations, not portable expected values.
+
+## 4. User programs and kernel services
+
+After leaving QEMU, the following source was inspected in Ubuntu:
+
+~~~bash
+sed -n '1,40p' user/ls.c
+sed -n '1,30p' user/cat.c
+grep -n -E 'sys_read|sys_write' kernel/sysfile.c
 ~~~
 
-#### 3.1.Observations
+cat uses read to obtain bytes and write to send them to stdout, descriptor 1. It also uses open, close and exit:
 
-1. Three programs shipped with xv6 are ls, cat, and echo. Other programs such as grep, wc, and mkdir are also available.
-
-2. For a pipe such as ls | grep c to work, the operating system needs to manage multiple processes and provide a communication mechanism between them. The output of one process is passed through a pipe and becomes input for another process.
-
-3. The xv6 shell feels similar to the Linux shell from Lab 1 because it can run commands and use pipes, but it is much smaller and has fewer programs and features.
-
-#### 3.2.Interesting Command Output
-
-The pipe command was the most interesting result in this part because it demonstrated that even this small operating system can connect two processes and transfer data between them.
-
-## Original PDF — page 5
-
-### 4.Reading the Source Code
-
-After leaving QEMU, I inspected the xv6 source from Ubuntu. The project is divided into kernel/, which contains the operating-system code, and user/, which contains normal programs. I inspected the ls and cat programs with:
-
-~~~text
-sed -n "1,40p" user/ls.c
-sed -n "1,30p" user/cat.c
-~~~
-
-The main loop in user/cat.c uses read() and write():
-
-~~~text
+~~~c
 while ((n = read(fd, buf, sizeof(buf))) > 0) {
   if (write(1, buf, n) != n) {
     fprintf(2, "cat: write error\n");
@@ -181,149 +97,61 @@ while ((n = read(fd, buf, sizeof(buf))) > 0) {
 }
 ~~~
 
-I checked the system-call declarations in user/user.h. Relevant entries were:
+In the original source checkout, the search located sys_read at line 69 and sys_write at line 83 of kernel/sysfile.c. The file and function names identify the implementations; line numbers can move between revisions.
 
-~~~text
-int write(int, const void *, int);
-int read(int, void *, int);
-int close(int);
-int open(const char *, int);
-int pause(int);
-~~~
+user/ contains ordinary programs running in user mode. kernel/ implements the privileged operating system. A user declaration in user/user.h leads to a generated stub in user/usys.S, then a system-call trap, dispatch through kernel/syscall.c and the corresponding kernel handler. User programs obtain services through this interface rather than executing privileged kernel code directly.
 
-Then I located the kernel implementations with:
+## 5. The sleep program
 
-~~~text
-grep -n "sys_read\|sys_write" kernel/sysfile.c | head
-~~~
+### 5.1. Version compatibility and units
 
-The result was:
+The executable is called sleep, but the waiting system call in this xv6 version is called pause. The original build failed when it called an undeclared sleep function; changing the call to pause matched user/user.h.
 
-~~~text
-69:sys_read(void)
-83:sys_write(void)
-~~~
+The argument counts **clock ticks**, not seconds. Check the declarations in the actual xv6 checkout before adapting the program to a different revision.
 
-#### 4.1.Observations
+### 5.2. Original recorded implementation and tests
 
-1. cat uses read() to read data, write() to output data, open() and close() to work with files, and exit() to terminate.
+The original PDF's implementation checked argc == 2, called pause(atoi(argv[1])) and exited with status 0. Adding $U/_sleep to UPROGS caused it to be compiled, linked and included in fs.img.
 
-2. In my xv6 copy, sys_read is implemented in kernel/sysfile.c starting at line 69; sys_write starts at line 83.
-
-3. Code in kernel/ runs as the operating system, while user/ contains ordinary programs that request services through system calls.
-
-#### 4.2.Interesting Command Output
-
-The output below directly connected the user-level operations with their kernel implementa- tions:
-
-~~~text
-69:sys_read(void)
-83:sys_write(void)
-~~~
-
-## Original PDF — page 6
-
-### 5.First xv6 Program: sleep
-
-The final task was to create a new user program called sleep. The program takes one number from the command line, waits for that number of clock ticks, and then finishes.
-
-#### 5.1.Implementation
-
-I created the file user/sleep.c. The final version used in my xv6 source tree was:
-
-~~~text
-#include "kernel/types.h"
-#include "user/user.h"
-
-int
-main(int argc, char *argv[])
-{
-  if(argc != 2){
-    fprintf(2, "usage: sleep <ticks>\n");
-    exit(1);
-  }
-
-  pause(atoi(argv[1]));
-  exit(0);
-}
-~~~
-
-The program first checks that exactly one argument was provided. If the argument is missing, it prints the usage message and exits with an error code. Otherwise, atoi() converts the text argument into an integer and the program pauses for that number of ticks. Version note. The laboratory sheet shows a call to sleep(), but the version of xv6 used in my VM declares pause(int) in user/user.h. My first build with sleep() produced an “implicit declaration of function ’sleep’“ error. Replacing the call with pause() matched the installed xv6 source and allowed the program to compile. The new program was then added to the UPROGS list in the Makefile:
-
-~~~text
-UPROGS=\
-        $U/_cat\
-        $U/_echo\
-        $U/_forktest\
-        $U/_grep\
-        $U/_init\
-        $U/_kill\
-        $U/_ln\
-        $U/_ls\
-        $U/_sleep\
-        $U/_mkdir\
-        ...
-~~~
-
-This makes the build system compile the program and place it in the xv6 filesystem image.
-
-## Original PDF — page 7
-
-#### 5.2.Build and Test
-
-After modifying the source and the Makefile, I rebuilt the operating system:
-
-~~~text
-make clean
-make qemu
-~~~
-
-During the successful build, the new program was compiled and linked:
-
-~~~text
-riscv64-linux-gnu-gcc ... -c -o user/sleep.o user/sleep.c
-riscv64-linux-gnu-ld ... -o user/_sleep ...
-~~~
-
-After xv6 booted again, ls showed the new program:
-
-~~~text
-ls 2 10 42880
-sleep 2 11 35280
-mkdir 2 12 35568
-~~~
-
-The normal test was:
+The recorded build commands were make clean and make qemu. The VM then showed the sleep executable in ls and ran:
 
 ~~~text
 $ sleep 10
 $
-~~~
-
-The shell returned after a short pause, so the program worked correctly. I also tested the error case by running the command without an argument:
-
-~~~text
 $ sleep
 usage: sleep <ticks>
 $
 ~~~
 
-This confirmed that the argument check and usage message worked as expected.
+Those observations demonstrated the normal and missing-argument cases. They did not test non-numeric input, negative numbers, overflow or the waiting syscall's failure result.
 
-#### 5.3.Interesting Command Output
+### 5.3. Reviewed repository implementation
 
-The most important result of the laboratory work was seeing sleep in the xv6 filesystem and successfully running it:
+The maintained [user/sleep.c](user/sleep.c) additionally:
 
-~~~text
-sleep 2 11 35280
-$ sleep 10
-$
-~~~
+- accepts zero and non-negative decimal tick counts, including leading zeros;
+- rejects missing/extra arguments, empty strings, signs, whitespace and non-digits;
+- checks the signed 32-bit limit before multiplying or adding, avoiding integer overflow;
+- exits unsuccessfully if pause fails, rather than reporting success unconditionally.
 
-This was the first program I added to an operating system that I also compiled and booted myself.
+The original PDF remains the record of the earlier implementation. The source file is the current reviewed implementation.
 
-## Original PDF — page 8
+### 5.4. Build integration
 
-### 6.Conclusion
+Copy user/sleep.c into the matching xv6 user/ directory. Add $U/_sleep to UPROGS, or include [Makefile.inc](Makefile.inc) immediately after the list definition and **before** the fs.img rule. Make expands target prerequisites while reading the Makefile, so adding programs only at its end can leave them unbuilt when fs.img is created.
 
-In this laboratory work I compiled and booted xv6 on the RISC-V QEMU emulator and used its small Unix-like shell. Commands such as ls, cat, echo, grep, and wc showed that xv6 provides familiar Unix concepts even though it is much smaller than Linux. Ialsoinspectedtherelationshipbetweenuserprogramsandthekernel. The cat program uses system calls such as read() and write(), while their kernel-side implementations can be found in kernel/sysfile.c. This made the boundary between user/ and kernel/ more understandable. Finally, I created the sleep user program, added it to the xv6 build, rebuilt the operating system, and tested it successfully. In the current xv6 version used on my VM, the waiting system call is named pause(), so the program calls pause(atoi(argv[1])). This laboratory work was my first practical experience with compiling an operating system and adding a program that runs inside it.
+make qemu is an Ubuntu build command. sleep 10 is entered inside the xv6 shell.
+
+## 6. Additional reproducible checks
+
+[tests/test_sleep_host.py](tests/test_sleep_host.py) compiles the actual C implementation with a stub waiting syscall. It checks the upper bound, invalid inputs, the forwarded tick value and propagation of a syscall failure. This does not simulate real elapsed ticks.
+
+[tests/sleeptest.c](tests/sleeptest.c) runs inside xv6, executes the installed sleep binary and checks child exit statuses. It measures uptime() around a five-tick wait and requires at least five elapsed ticks. It also covers zero, leading zeros, missing/extra arguments, invalid text, negative values, overflow, empty strings and leading whitespace.
+
+The [shared QEMU runner](../scripts/test_xv6.py) installs the helper in a disposable copy of the pinned xv6 source, builds the real RISC-V kernel and user programs, and runs these tests. [GitHub Actions](https://github.com/AlexxxCP/Operating-Systems/actions/workflows/labs.yml) retains its build and console logs. Consult the run status and [validation notes](../IMPLEMENTATION.md) for the actual results.
+
+## 7. Conclusion
+
+xv6 provides familiar Unix concepts with a small codebase: ordinary commands use system calls, pipes connect processes, and user and kernel code remain distinct. Adding sleep demonstrated the path from a C source file through UPROGS and fs.img to execution inside the OS.
+
+The original session confirmed a successful wait and the usage error. The reviewed repository makes the units and pause API explicit, completes the separate Observe answers and adds checks for input validation, failure handling and actual elapsed ticks.

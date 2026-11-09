@@ -25,3 +25,5 @@ Tracing occurs after the syscall handler returns, so its result is already in `a
 - The combined mask `(1 << 15) | (1 << 21)` printed only `open` and `close`.
 
 The reconstructed patch additionally initializes/resets masks and avoids signed/out-of-range shifts. The host test exercises dispatcher logic with mocks; full inheritance and process isolation still need the runtime checks in [xv6-commands.txt](xv6-commands.txt).
+
+The reviewed wrapper accepts decimal masks from 0 to 2147483647 and rejects invalid or overflowing values. The [automated QEMU runner](../scripts/test_xv6.py) also executes the runtime checks and a dedicated [inheritance helper](tests/tracecheck.c). Their actual outcome is recorded by GitHub Actions and linked in the repository validation notes.

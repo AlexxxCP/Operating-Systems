@@ -1,5 +1,7 @@
 # Operating Systems
 
+[![Lab checks](https://github.com/AlexxxCP/Operating-Systems/actions/workflows/labs.yml/badge.svg)](https://github.com/AlexxxCP/Operating-Systems/actions/workflows/labs.yml)
+
 Десять лабораторных работ по дисциплине **Operating Systems**, Technical University of Moldova.
 
 Студент: **Luchiciov Alexei**, группа **FAF-241**. Проверила: **Reiţman Patricia**.
@@ -43,3 +45,7 @@ Linux-эксперименты выполняются в Ubuntu; програм�
 Для Lab 10 патч подготовлен к фиксированной версии xv6 с `SYS_sync = 22`, `SYS_trace = 23` и `printk`. Инструкция применения и команды проверки находятся в [lab10/README.md](lab10/README.md). Зафиксированные результаты из отчётов и проверки восстановленного кода описаны отдельно.
 
 [Карта файлов и сведения о проверке](IMPLEMENTATION.md)
+
+## Автоматическая проверка
+
+GitHub Actions собирает и запускает Linux-программы Lab 7 и Lab 9, а также настоящее ядро RISC-V в QEMU для Lab 2, Lab 8 и Lab 10. Проверяются ожидание в тактах, коды завершения, каналы, `strace`, маски трассировки, наследование и изоляция процессов. Журналы сборки и консоли сохраняются в артефакте `xv6-test-logs` каждого запуска. Значок сверху показывает текущий результат; он не заменяет оценку преподавателя.

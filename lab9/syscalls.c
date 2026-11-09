@@ -17,7 +17,8 @@ main(void)
     while (sent < length) {
         ssize_t n = write(fd, msg + sent, length - sent);
         if (n < 0 && errno == EINTR) continue;
-        if (n <= 0) { perror("write"); close(fd); return 1; }
+        if (n < 0) { perror("write"); close(fd); return 1; }
+        if (n == 0) { fputs("write: no progress\n", stderr); close(fd); return 1; }
         sent += (size_t)n;
     }
     printf("write sent %zu bytes\n", sent);
